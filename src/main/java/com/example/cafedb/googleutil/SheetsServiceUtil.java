@@ -18,16 +18,22 @@ import java.util.stream.Collectors;
 public class SheetsServiceUtil {
     private static final String APPLICATION_NAME = "CafeDB";
     private static HashMap<String, String> fieldToColumnMap;
-    @Value("${google.spreadsheet.id}")
+
     private static String spreadsheetID;
-    private static final String sheetName = "CafeDB_Main";
+    private final static String sheetName = "CafeDB_Main";
 
     public static Sheets.Spreadsheets getSheetsService(Credential credential) throws IOException, GeneralSecurityException {
         initializeColumnToFieldMap();
+
         return new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build()
                 .spreadsheets();
+    }
+
+    @Value("${google.spreadsheet.id}")
+    public void setSpreadsheetID(String sheetID) {
+        spreadsheetID = sheetID;
     }
 
     public static void writeToSheet(Sheets.Spreadsheets service, ShopRating rating) throws IOException {

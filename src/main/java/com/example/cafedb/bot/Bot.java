@@ -45,22 +45,21 @@ public class Bot extends TelegramLongPollingBot {
     private String botToken;
 
 
-    @Value("${google.spreadsheet.id}")
+    /*@Value("${google.spreadsheet.id}")
     private String spreadsheetId;
 
     @Value("${google.credentials.file}")
-    private String credentialsFilePath;
-    private static final String sheetName = "CafeDB_Main"; // Add your sheet name here
+    private String credentialsFilePath;*/
+    /*private static final String sheetName = "CafeDB_Main";*/
 
     public Bot(@Value("${telegram.bot.token}") String botToken,
                @Value("${google.spreadsheet.id}") String spreadsheetId,
                @Value("${google.credentials.file}") String credentialsFilePath) {
         this.botToken = botToken;
-        this.spreadsheetId = spreadsheetId;
-        this.credentialsFilePath = credentialsFilePath;
+        /*this.spreadsheetId = spreadsheetId;
+        this.credentialsFilePath = credentialsFilePath;*/
     }
 
-    public Bot() {}
 
     @Override
     public String getBotUsername() {
@@ -71,6 +70,12 @@ public class Bot extends TelegramLongPollingBot {
     public String getBotToken() {
         return botToken;
     }
+
+    @Value("${telegram.bot.token}")
+    public void setBotToken(String token) {
+        this.botToken = token;
+    }
+
 
     @Override
     public void onUpdateReceived(Update update) {
