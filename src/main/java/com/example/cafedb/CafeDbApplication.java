@@ -11,17 +11,21 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class CafeDbApplication {
 
     public static void main(String[] args) throws TelegramApiException {
-        SpringApplication.run(CafeDbApplication.class, args);
-
-        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+        System.out.println("Application started");
         String botToken = System.getenv("TELEGRAM_BOT_TOKEN");
 
         if (botToken.isEmpty() || botToken.isBlank()) {
-            System.out.println("botToken not loaded");
+            System.err.println("botToken not loaded");
 
         } else {
             System.out.println(botToken.substring(0, 3));
         }
+
+
+        SpringApplication.run(CafeDbApplication.class, args);
+
+        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+
         botsApi.registerBot(new Bot(botToken));
 
     }
