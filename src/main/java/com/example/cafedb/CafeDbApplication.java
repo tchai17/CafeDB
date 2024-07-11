@@ -18,6 +18,8 @@ public class CafeDbApplication {
 
         if (botToken.isEmpty() || botToken.isBlank()) {
             System.out.println("botToken not loaded");
+
+        } else {
             System.out.println(botToken.substring(0, 3));
         }
         botsApi.registerBot(new Bot(botToken));
