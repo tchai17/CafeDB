@@ -21,6 +21,7 @@ public class CafeDbApplication {
             System.out.println(botToken.substring(0, 3));
         }
         botsApi.registerBot(new Bot(botToken));
+
     }
 
 }
