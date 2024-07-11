@@ -15,6 +15,7 @@ public class CafeDbApplication {
 
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         botsApi.registerBot(new Bot(System.getenv("TELEGRAM_BOT_TOKEN")));
+        System.out.println("Bot registered");
     }
 
 }

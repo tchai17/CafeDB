@@ -72,6 +72,7 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         try {
             if (update.hasMessage() && update.getMessage().hasText()) {
+                System.out.println("Received message:" + update.getMessage().getText());
                 handleTextMessage(update.getMessage());
             } else if (update.hasCallbackQuery()) {
                 handleCallbackQuery(update.getCallbackQuery());
