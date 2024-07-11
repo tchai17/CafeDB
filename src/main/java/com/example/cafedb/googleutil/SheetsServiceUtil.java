@@ -45,6 +45,10 @@ public class SheetsServiceUtil {
             throw new IllegalArgumentException("Rating object cannot be null");
         }
 
+        if (rating.getShop().getName() == null || rating.getUsername() == null || rating.getRatingDate() == null || rating.getAdditionalDetails() == null) {
+            throw new IllegalArgumentException("Rating fields cannot be null");
+        }
+
         List<List<Object>> values = new ArrayList<>();
         values.add(Arrays.asList(
                 rating.getShop().getName(),
@@ -62,24 +66,46 @@ public class SheetsServiceUtil {
     }
 
     public static List<List<Object>> readFromSheet(Sheets.Spreadsheets service) throws IOException {
-        String range = sheetName + "!A:E"; // Adjust range based on your model
-        ValueRange response = service.values().get(spreadsheetID, range).execute();
-        return response.getValues();
+        if (service == null || spreadsheetID == null) {
+            throw new IllegalArgumentException("Service and spreadsheetID cannot be null");
+        }
+        
+        String range = sheetName + "!A:E";
+        ValueRange response = null;
+        try {
+            response = service.values().get(spreadsheetID, range).execute();
+        } catch (IOException e) {
+            System.err.println("An error occurred while reading from the sheet: " + e.getMessage());
+            // Handle the exception or throw a custom exception
+        }
+        
+        return response != null && response.getValues() != null ? response.getValues() : new ArrayList<>();
     }
 
 
 
     public static List<List<Object>> getRatingsByShop(Sheets.Spreadsheets service, String shopName) throws IOException {
+        if (service == null || shopName == null) {
+            throw new IllegalArgumentException("Service and shopName cannot be null");
+        }
+        
         List<List<Object>> allRatings = readFromSheet(service);
-        return allRatings.stream()
-                .filter(row -> row.get(0).equals(shopName))
+        List<List<Object>> cachedRatings = new ArrayList<>(allRatings);
+        return cachedRatings.stream()
+                .filter(row -> Objects.equals(row.get(0), shopName))
                 .collect(Collectors.toList());
     }
 
     public static List<List<Object>> getRatingsByUser(Sheets.Spreadsheets service, String username) throws IOException {
+        if (service == null || username == null) {
+            throw new IllegalArgumentException("Service and username cannot be null");
+        }
+
         List<List<Object>> allRatings = readFromSheet(service);
-        return allRatings.stream()
-                .filter(row -> row.get(1).equals(username))
+        List<List<Object>> cachedRatings = new ArrayList<>(allRatings);
+
+        return cachedRatings.stream()
+                .filter(row -> Objects.equals(row.get(1), username))
                 .collect(Collectors.toList());
     }
 
