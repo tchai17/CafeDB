@@ -41,15 +41,16 @@ public class Bot extends TelegramLongPollingBot {
     private Shop currentShop;
     private ShopRating currentRating;
 
-    @Value("${telegram.bot.token}")
+    @Value("${TELEGRAM_BOT_TOKEN}")
     private String botToken;
-
-
 
     public Bot(@Value("${TELEGRAM_BOT_TOKEN}") String botToken) {
         this.botToken = botToken;
 
     }
+
+
+
 
 
     @Override
@@ -62,10 +63,10 @@ public class Bot extends TelegramLongPollingBot {
         return botToken;
     }
 
-    @Value("${telegram.bot.token}")
-    public void setBotToken(String token) {
-        this.botToken = token;
-    }
+//    @Value("${telegram.bot.token}")
+//    public void setBotToken(String token) {
+//        this.botToken = token;
+//    }
 
 
     @Override

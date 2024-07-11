@@ -14,7 +14,13 @@ public class CafeDbApplication {
         SpringApplication.run(CafeDbApplication.class, args);
 
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-        botsApi.registerBot(new Bot(System.getenv("TELEGRAM_BOT_TOKEN")));
+        String botToken = System.getenv("TELEGRAM_BOT_TOKEN");
+
+        if (botToken.isEmpty() || botToken.isBlank()) {
+            System.out.println("botToken not loaded");
+            System.out.println(botToken.substring(0, 3));
+        }
+        botsApi.registerBot(new Bot(botToken));
     }
 
 }
