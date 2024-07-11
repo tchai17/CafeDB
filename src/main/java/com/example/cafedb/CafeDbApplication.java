@@ -30,9 +30,7 @@ public class CafeDbApplication {
 		application.run(args);
 		TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
 		botsApi.registerBot(new Bot(
-				dotenv.get("TELEGRAM_BOT_TOKEN"),
-				dotenv.get("GOOGLE_SPREADSHEET_ID"),
-				dotenv.get("GOOGLE_CREDENTIALS_FILE")
+				dotenv.get("TELEGRAM_BOT_TOKEN")
 				));
 
 

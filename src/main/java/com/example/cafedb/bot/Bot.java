@@ -45,19 +45,10 @@ public class Bot extends TelegramLongPollingBot {
     private String botToken;
 
 
-    /*@Value("${google.spreadsheet.id}")
-    private String spreadsheetId;
 
-    @Value("${google.credentials.file}")
-    private String credentialsFilePath;*/
-    /*private static final String sheetName = "CafeDB_Main";*/
-
-    public Bot(@Value("${telegram.bot.token}") String botToken,
-               @Value("${google.spreadsheet.id}") String spreadsheetId,
-               @Value("${google.credentials.file}") String credentialsFilePath) {
+    public Bot(@Value("${telegram.bot.token}") String botToken) {
         this.botToken = botToken;
-        /*this.spreadsheetId = spreadsheetId;
-        this.credentialsFilePath = credentialsFilePath;*/
+
     }
 
 
@@ -79,14 +70,31 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            handleTextMessage(update.getMessage());
-        } else if (update.hasCallbackQuery()) {
-            handleCallbackQuery(update.getCallbackQuery());
+        try {
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                handleTextMessage(update.getMessage());
+            } else if (update.hasCallbackQuery()) {
+                handleCallbackQuery(update.getCallbackQuery());
+            }
+        } catch (Exception e) {
+            // Log the exception for error management
+            e.printStackTrace();
         }
     }
 
-    private void handleTextMessage(Message message) {
+    void handleTextMessage(Message message) {
+        String text = message.getText();
+        Long chatId = message.getChatId();
+
+        if (message.isCommand()) {
+            handleCommand(message);
+        } else {
+            handleUserInput(message, chatId);
+        }
+
+    }
+
+    private void handleCommand(Message message) {
         String text = message.getText();
         Long chatId = message.getChatId();
 
@@ -96,8 +104,16 @@ public class Bot extends TelegramLongPollingBot {
                 sendMessage(chatId, welcome);
             }
             case "/menu" -> sendMainMenu(chatId);
+            case "/stop" -> {
+                currentState = State.NONE;
+                String stopMessage = "Current action terminated. Please try /menu again to see all actions.";
+                sendMessage(chatId, stopMessage);
+            }
 
-            default -> handleUserInput(message, chatId);
+            default -> {
+                String invalidCommandMessage = "This command is not supported. Please try again.";
+                sendMessage(chatId, invalidCommandMessage);
+            }
         }
     }
 
