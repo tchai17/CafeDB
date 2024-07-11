@@ -31,7 +31,7 @@ public class SheetsServiceUtil {
                 .spreadsheets();
     }
 
-    @Value("${google.spreadsheet.id}")
+    @Value("${GOOGLE_SPREADSHEET_ID}")
     public void setSpreadsheetID(String sheetID) {
         spreadsheetID = sheetID;
     }
