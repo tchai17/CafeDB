@@ -46,7 +46,7 @@ public class Bot extends TelegramLongPollingBot {
 
 
 
-    public Bot(@Value("${telegram.bot.token}") String botToken) {
+    public Bot(@Value("${TELEGRAM_BOT_TOKEN}") String botToken) {
         this.botToken = botToken;
 
     }
