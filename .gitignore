@@ -38,3 +38,4 @@ mvnw
 mvnw.cmd
 .mvn/*
 src/main/resources/credentials.json
+runscript.bat
