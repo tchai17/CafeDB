@@ -18,11 +18,13 @@ public class CafeDbApplication {
     private static final Logger logger = LoggerFactory.getLogger(CafeDbApplication.class);
 
     public static void main(String[] args) throws TelegramApiException {
+
         logger.info("Application starting...");
 
         SpringApplication.run(CafeDbApplication.class, args);
 
         logger.info("Application started");
+
     }
 
     @Bean

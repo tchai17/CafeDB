@@ -35,6 +35,7 @@ public class GoogleAuthorizeUtil {
 
         if ( credentialsJson.isEmpty() || credentialsJson == null ) {
             throw new IOException("Google credentials file not found.");
+
         }
         InputStream in = new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8));
 
