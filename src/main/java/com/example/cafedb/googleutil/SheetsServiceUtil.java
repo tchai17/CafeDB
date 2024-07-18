@@ -1,4 +1,5 @@
 package com.example.cafedb.googleutil;
+
 import com.example.cafedb.models.ShopRating;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +22,7 @@ public class SheetsServiceUtil {
     private static String spreadsheetID;
     private final static String sheetName = "CafeDB_Main";
 
+
     public static Sheets.Spreadsheets getSheetsService(Credential credential) throws IOException, GeneralSecurityException {
         initializeColumnToFieldMap();
 
@@ -29,6 +30,10 @@ public class SheetsServiceUtil {
                 .setApplicationName(APPLICATION_NAME)
                 .build()
                 .spreadsheets();
+    }
+
+    public SheetsServiceUtil(@Value("${GOOGLE_SPREADSHEET_ID}") String sheetID) {
+        setSpreadsheetID(sheetID);
     }
 
     @Value("${GOOGLE_SPREADSHEET_ID}")
@@ -41,11 +46,11 @@ public class SheetsServiceUtil {
     }
 
     public static void writeToSheet(Sheets.Spreadsheets service, String spreadsheetId, String sheetName, ShopRating rating) throws IOException {
-        if (rating == null) {
+        if ( rating == null ) {
             throw new IllegalArgumentException("Rating object cannot be null");
         }
 
-        if (rating.getShop().getName() == null || rating.getUsername() == null || rating.getRatingDate() == null || rating.getAdditionalDetails() == null) {
+        if ( rating.getShop().getName() == null || rating.getUsername() == null || rating.getRatingDate() == null || rating.getAdditionalDetails() == null ) {
             throw new IllegalArgumentException("Rating fields cannot be null");
         }
 
@@ -66,29 +71,28 @@ public class SheetsServiceUtil {
     }
 
     public static List<List<Object>> readFromSheet(Sheets.Spreadsheets service) throws IOException {
-        if (service == null || spreadsheetID == null) {
+        if ( service == null || spreadsheetID == null ) {
             throw new IllegalArgumentException("Service and spreadsheetID cannot be null");
         }
-        
+
         String range = sheetName + "!A:E";
         ValueRange response = null;
         try {
             response = service.values().get(spreadsheetID, range).execute();
-        } catch (IOException e) {
+        } catch ( IOException e ) {
             System.err.println("An error occurred while reading from the sheet: " + e.getMessage());
             // Handle the exception or throw a custom exception
         }
-        
+
         return response != null && response.getValues() != null ? response.getValues() : new ArrayList<>();
     }
 
 
-
     public static List<List<Object>> getRatingsByShop(Sheets.Spreadsheets service, String shopName) throws IOException {
-        if (service == null || shopName == null) {
+        if ( service == null || shopName == null ) {
             throw new IllegalArgumentException("Service and shopName cannot be null");
         }
-        
+
         List<List<Object>> allRatings = readFromSheet(service);
         List<List<Object>> cachedRatings = new ArrayList<>(allRatings);
         return cachedRatings.stream()
@@ -97,7 +101,7 @@ public class SheetsServiceUtil {
     }
 
     public static List<List<Object>> getRatingsByUser(Sheets.Spreadsheets service, String username) throws IOException {
-        if (service == null || username == null) {
+        if ( service == null || username == null ) {
             throw new IllegalArgumentException("Service and username cannot be null");
         }
 
@@ -110,7 +114,7 @@ public class SheetsServiceUtil {
     }
 
     public static double calculateAverageScore(List<List<Object>> ratings) {
-        if (ratings.isEmpty()) {
+        if ( ratings.isEmpty() ) {
             return 0.0;
         }
         return ratings.stream()
@@ -127,7 +131,7 @@ public class SheetsServiceUtil {
     }
 
     private static void initializeColumnToFieldMap() {
-        if (fieldToColumnMap == null) {
+        if ( fieldToColumnMap == null ) {
             fieldToColumnMap = new HashMap<>();
             fieldToColumnMap.put("shop.name", "A");
             fieldToColumnMap.put("username", "B");
