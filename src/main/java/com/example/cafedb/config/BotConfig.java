@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.core.env.Environment;
+
 
 @Configuration
 public class BotConfig {
@@ -22,9 +24,10 @@ public class BotConfig {
         this.env = env;
     }
 
+
     @Bean
     public Bot bot() {
-        String botToken = env.getProperty("telegram.bot.token");
+
         if (botToken == null || botToken.isEmpty()) {
             logger.error("TELEGRAM_BOT_TOKEN is not set");
         } else {

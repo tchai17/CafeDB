@@ -24,6 +24,10 @@ public class GoogleAuthorizeUtil {
     public static Credential authorize() throws IOException, GeneralSecurityException {
         // Load Google credentials from environment variable
         String credentialsJson = System.getenv("GOOGLE_CREDENTIALS_FILE");
+
+        if (credentialsJson.isEmpty() || credentialsJson.isBlank()) {
+            System.out.println("credentialsJSON is empty or blank");
+        }
         InputStream in = new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8));
 
         // Build Google Credential object

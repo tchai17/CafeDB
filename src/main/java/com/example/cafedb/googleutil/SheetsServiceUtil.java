@@ -14,11 +14,12 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
+
 public class SheetsServiceUtil {
     private static final String APPLICATION_NAME = "CafeDB";
     private static HashMap<String, String> fieldToColumnMap;
 
+    @Value("${GOOGLE_SPREADSHEET_ID}")
     private static String spreadsheetID;
     private final static String sheetName = "CafeDB_Main";
 
