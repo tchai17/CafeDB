@@ -1,12 +1,9 @@
 package com.example.cafedb.bot;
 
-import com.example.cafedb.googleutil.GoogleAuthorizeUtil;
-import com.example.cafedb.googleutil.SheetsServiceUtil;
 import com.example.cafedb.models.Shop;
 import com.example.cafedb.models.ShopRating;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.sheets.v4.Sheets;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.cafedb.service.SpreadsheetAccessService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -40,13 +37,13 @@ public class Bot extends TelegramLongPollingBot {
     private State currentState = State.NONE;
     private Shop currentShop;
     private ShopRating currentRating;
-
-
+    private final SpreadsheetAccessService spreadsheetAccessService;
     private String botToken;
 
+    @Autowired
     public Bot(String botToken) {
         this.botToken = botToken;
-
+        this.spreadsheetAccessService = new SpreadsheetAccessService();
     }
 
     @Override
@@ -59,22 +56,16 @@ public class Bot extends TelegramLongPollingBot {
         return botToken;
     }
 
-//    @Value("${telegram.bot.token}")
-//    public void setBotToken(String token) {
-//        this.botToken = token;
-//    }
-
-
     @Override
     public void onUpdateReceived(Update update) {
         try {
-            if (update.hasMessage() && update.getMessage().hasText()) {
+            if ( update.hasMessage() && update.getMessage().hasText() ) {
                 System.out.println("Received message:" + update.getMessage().getText());
                 handleTextMessage(update.getMessage());
-            } else if (update.hasCallbackQuery()) {
+            } else if ( update.hasCallbackQuery() ) {
                 handleCallbackQuery(update.getCallbackQuery());
             }
-        } catch (Exception e) {
+        } catch ( Exception e ) {
             // Log the exception for error management
             e.printStackTrace();
         }
@@ -84,19 +75,18 @@ public class Bot extends TelegramLongPollingBot {
         String text = message.getText();
         Long chatId = message.getChatId();
 
-        if (message.isCommand()) {
+        if ( message.isCommand() ) {
             handleCommand(message);
         } else {
             handleUserInput(message, chatId);
         }
-
     }
 
     private void handleCommand(Message message) {
         String text = message.getText();
         Long chatId = message.getChatId();
 
-        switch (text) {
+        switch ( text ) {
             case "/start" -> {
                 String welcome = "Welcome to CafeDB! To start, please submit /menu to see all actions.";
                 sendMessage(chatId, welcome);
@@ -107,7 +97,6 @@ public class Bot extends TelegramLongPollingBot {
                 String stopMessage = "Current action terminated. Please try /menu again to see all actions.";
                 sendMessage(chatId, stopMessage);
             }
-
             default -> {
                 String invalidCommandMessage = "This command is not supported. Please try again.";
                 sendMessage(chatId, invalidCommandMessage);
@@ -183,7 +172,7 @@ public class Bot extends TelegramLongPollingBot {
 
         try {
             execute(message);
-        } catch (TelegramApiException e) {
+        } catch ( TelegramApiException e ) {
             e.printStackTrace();
         }
     }
@@ -191,7 +180,7 @@ public class Bot extends TelegramLongPollingBot {
     private void handleUserInput(Message message, Long chatId) {
         String text = message.getText();
 
-        switch (currentState) {
+        switch ( currentState ) {
             case AWAITING_SHOP_NAME:
                 currentShop = new Shop(text, null);
                 currentState = State.AWAITING_CATEGORY;
@@ -204,7 +193,7 @@ public class Bot extends TelegramLongPollingBot {
                     currentRating.setUsername(message.getFrom().getUserName());
                     currentState = State.AWAITING_DETAILS;
                     sendMessage(chatId, "Please enter any additional details:");
-                } catch (NumberFormatException e) {
+                } catch ( NumberFormatException e ) {
                     sendMessage(chatId, "Invalid rating. Please enter a numeric value.");
                 }
                 break;
@@ -249,7 +238,7 @@ public class Bot extends TelegramLongPollingBot {
 
         try {
             execute(message);
-        } catch (TelegramApiException e) {
+        } catch ( TelegramApiException e ) {
             e.printStackTrace();
         }
     }
@@ -275,27 +264,17 @@ public class Bot extends TelegramLongPollingBot {
 
         try {
             execute(message);
-        } catch (TelegramApiException e) {
+        } catch ( TelegramApiException e ) {
             e.printStackTrace();
         }
     }
 
     private void saveRating(Long chatId) {
         try {
-            Credential credential = GoogleAuthorizeUtil.authorize();
-            Sheets.Spreadsheets spreadsheets = SheetsServiceUtil.getSheetsService(credential);
-            List<List<Object>> shopRatings = SheetsServiceUtil.getRatingsByShop(spreadsheets, currentShop.getName());
-
-            double averageScore = SheetsServiceUtil.calculateAverageScore(shopRatings);
-            if (!shopRatings.isEmpty()) {
-                sendMessage(chatId, "The current average rating for " + currentShop.getName() + " is " + averageScore + ".");
-            }
-
-            SheetsServiceUtil.writeToSheet(spreadsheets, currentRating);
-
+            spreadsheetAccessService.saveRating(currentRating, currentShop);
             sendMessage(chatId, "Thank you! Your rating has been saved.");
             currentState = State.NONE;
-        } catch (Exception e) {
+        } catch ( Exception e ) {
             sendMessage(chatId, "An error occurred while saving your rating. Please try again.");
             e.printStackTrace();
         }
@@ -303,27 +282,9 @@ public class Bot extends TelegramLongPollingBot {
 
     private void searchShop(Long chatId, String shopName) {
         try {
-            Credential credential = GoogleAuthorizeUtil.authorize();
-            Sheets.Spreadsheets spreadsheets = SheetsServiceUtil.getSheetsService(credential);
-            List<List<Object>> shopRatings = SheetsServiceUtil.getRatingsByShop(spreadsheets, shopName);
-
-            if (shopRatings.isEmpty()) {
-                sendMessage(chatId, "No ratings found for shop: " + shopName);
-                return;
-            }
-
-            double averageScore = SheetsServiceUtil.calculateAverageScore(shopRatings);
-
-            StringBuilder ratingsText = new StringBuilder("Ratings for " + shopName + " (Average Score: " + averageScore + "):\n\n");
-            for (List<Object> row : shopRatings) {
-                ratingsText.append("User: ").append(row.get(1)).append("\n")
-                        .append("Date: ").append(row.get(2)).append("\n")
-                        .append("Score: ").append(row.get(3)).append("\n")
-                        .append("Details: ").append(row.get(4)).append("\n\n");
-            }
-
-            sendMessage(chatId, ratingsText.toString());
-        } catch (IOException | GeneralSecurityException e) {
+            String result = spreadsheetAccessService.searchShop(shopName);
+            sendMessage(chatId, result);
+        } catch ( IOException | GeneralSecurityException e ) {
             sendMessage(chatId, "An error occurred while retrieving shop ratings. Please try again.");
             e.printStackTrace();
         }
@@ -331,25 +292,9 @@ public class Bot extends TelegramLongPollingBot {
 
     private void viewUserRatings(Long chatId, String username) {
         try {
-            Credential credential = GoogleAuthorizeUtil.authorize();
-            Sheets.Spreadsheets spreadsheets = SheetsServiceUtil.getSheetsService(credential);
-            List<List<Object>> userRatings = SheetsServiceUtil.getRatingsByUser(spreadsheets, username);
-
-            if (userRatings.isEmpty()) {
-                sendMessage(chatId, "No ratings found for user: " + username);
-                return;
-            }
-
-            StringBuilder ratingsText = new StringBuilder("Ratings submitted by " + username + ":\n\n");
-            for (List<Object> row : userRatings) {
-                ratingsText.append("Shop: ").append(row.get(0)).append("\n")
-                        .append("Date: ").append(row.get(2)).append("\n")
-                        .append("Score: ").append(row.get(3)).append("\n")
-                        .append("Details: ").append(row.get(4)).append("\n\n");
-            }
-
-            sendMessage(chatId, ratingsText.toString());
-        } catch (IOException | GeneralSecurityException e) {
+            String result = spreadsheetAccessService.viewUserRatings(username);
+            sendMessage(chatId, result);
+        } catch ( IOException | GeneralSecurityException e ) {
             sendMessage(chatId, "An error occurred while retrieving user ratings. Please try again.");
             e.printStackTrace();
         }
