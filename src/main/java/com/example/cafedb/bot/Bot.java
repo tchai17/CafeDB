@@ -209,6 +209,9 @@ public class Bot extends TelegramLongPollingBot {
                 viewUserRatings(chatId, username);
                 break;
             default:
+                if (text.equalsIgnoreCase("hello")) {
+                    sendMessage(chatId, "Hello, " + message.getFrom().getUserName() + "!");
+                }
                 sendMessage(chatId, "Please use the /menu command to start.");
         }
     }
