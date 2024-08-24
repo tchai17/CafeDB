@@ -35,7 +35,6 @@ public class BotConfig {
     @Bean
     public Bot bot() {
         if ( botToken == null || botToken.isEmpty() ) {
-
             logger.error("TELEGRAM_BOT_TOKEN is not set");
         } else {
             logger.info("TELEGRAM_BOT_TOKEN is set: " + botToken.substring(0, 3) + "...");
