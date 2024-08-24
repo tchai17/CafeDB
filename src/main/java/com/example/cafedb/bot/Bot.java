@@ -209,10 +209,8 @@ public class Bot extends TelegramLongPollingBot {
                 viewUserRatings(chatId, username);
                 break;
             default:
-                if (text.equalsIgnoreCase("hello")) {
-                    sendMessage(chatId, "Hello, " + message.getFrom().getUserName() + "!");
-                }
-                sendMessage(chatId, "Please use the /menu command to start.");
+                handleSmalltalk(chatId, message);
+
         }
     }
 
@@ -301,5 +299,26 @@ public class Bot extends TelegramLongPollingBot {
             sendMessage(chatId, "An error occurred while retrieving user ratings. Please try again.");
             e.printStackTrace();
         }
+    }
+
+    private void handleSmalltalk(Long chatId, Message message) {
+        String text = message.getText();
+
+        if (text.equalsIgnoreCase("hello")) {
+            sendMessage(chatId, "Hello, " + message.getFrom().getUserName() + "!");
+        }
+
+        else if (text.equalsIgnoreCase("help")) {
+            sendMessage(chatId, "Please use the /menu command to start.");
+        }
+
+        else if (text.equalsIgnoreCase("about")) {
+            sendMessage(chatId, "This bot allows you to rate shops and view ratings of cafes, eateries, and " +
+                    "restaurants! To see this bot in action, please use the /menu command to start!" );
+        }
+        else {
+            sendMessage(chatId, "I'm not sure how to respond to that. Please use the /menu command to start.");
+        }
+
     }
 }
