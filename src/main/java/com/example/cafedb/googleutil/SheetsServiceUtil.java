@@ -96,8 +96,14 @@ public class SheetsServiceUtil {
 
         List<List<Object>> allRatings = readFromSheet(service);
         List<List<Object>> cachedRatings = new ArrayList<>(allRatings);
-        return cachedRatings.stream()
-                .filter(row -> Objects.equals(row.get(0), shopName))
+        return cachedRatings
+                .stream()
+                .filter(row -> {
+                    String shop = row.get(0).toString();
+                    return shop
+                            .toLowerCase()
+                            .contains(shopName.toLowerCase());
+                })
                 .collect(Collectors.toList());
     }
 
